@@ -7,8 +7,19 @@ dotenv .config({
 })
 
 
-
+//it was a function call off dbconect to connect the db and start the server only when the db is connected
 dbconect()
+.then(()=>{
+    app.listen(process.env.PORT||8000,()=>{
+        console.log(`server is listening at:${process.env.PORT}`);
+    })
+    app.on("error",(error)=>{
+        console.log("ERROR:",error)
+    })
+})
+.catch((error)=>{
+    console.log(`mongodb conection is faild!!`,error)
+})
 
 
 
