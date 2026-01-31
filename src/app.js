@@ -1,12 +1,13 @@
-import CookieParser from "cookieparser";
+import CookieParser from "cookie-parser";
+
 import cors from "cors"
-import { CROSS_ORIGIN_URL } from "../constants.js";
+
 import express from "express"
-const app=expree();
+const app  = express();
 
 //USE TO HANDLE CROSS ORGIN ERROR IN THE BROWSER TO ALLOW THE FRONTEND TO READ THE BACKENG OR LISITEN ON SERVER
 app.use(cors({
-    origin:CROSS_ORIGIN_URL,
+    origin:process.env.CROSS_ORIGIN_URL,
     Credentials:true
 }))
 //USE TO TAKE JSON FILE DATA FROM SERVER
@@ -24,4 +25,16 @@ app.use(express.static('public'))
 //it reads cookies from the browser request and converts them into a JavaScript object.
 app.use(CookieParser())
 
-export {app}
+
+
+// routes import
+import userRouter from "./routes/user.routes.js"
+
+// routes use
+
+
+app.use("/api/v1/users",userRouter)
+ 
+// https:localhost:8000/api/v1/users/register
+
+export { app };
