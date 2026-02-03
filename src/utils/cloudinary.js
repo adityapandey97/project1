@@ -1,4 +1,5 @@
 import {v2 as cloudinary} from "cloudinary";
+import FileSystem from "fs";
 cloudinary.config({
     cloud_name:process.env.CLOUDINARY_CLOUD_NAME,
     api_key:process.env.CLOUDINARY_API_KEY,
@@ -11,10 +12,12 @@ const cloudinaryupload=async(localfilepath)=>{
         const response=await cloudinary.uploader.upload(localfilepath,{
             resource_type:"auto",
         });
-        console.log("Cloudinary upload response:", response);
+        // console.log("Cloudinary upload response:", response);
+        FileSystem.unlinkSync(localfilepath);
         return response;
     }catch(error){
         FileSystem.unlinkSync(localfilepath);
+        return null;
     }
 }
 export default cloudinaryupload;

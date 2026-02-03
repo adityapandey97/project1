@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import jwt from "jsonwebtoken";
-import bycrypt from "bcryptjs";
+import bcrypt from "bcrypt";
 const userSchema = new mongoose.Schema({
     username: 
     { 
@@ -18,12 +18,12 @@ const userSchema = new mongoose.Schema({
     { 
         type: String,
         required: true, 
-        default: "default_avatar.png" 
+        default: "default_avatar.jpg" 
     },
     coverimage: 
     { 
         type: String,
-        requied: false,
+        required: false,
         default: "default_cover.jpg" 
     },
     email:
@@ -169,15 +169,15 @@ Together they create a complete secure login system.
 
 
 
-userSchema.pre("save", async function (next) {
-    if(!this.ismodified("password")){
-        return next();
+userSchema.pre("save", async function () {
+    if(!this.isModified("password")){
+        return 
     }
-    this.password =  bycrypt.hash(this.password,10)
-    next();
+    this.password = await bcrypt.hash(this.password,10)
+    
 });
 userSchema.methods.isPasswordcorrect = async function (password) {
-    return await bycrypt.compare(password, this.password);
+    return await bcrypt.compare(password, this.password);
 }
 userSchema.methods.generateAccessToken = function () {
     return jwt.sign(
