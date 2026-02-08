@@ -1,42 +1,61 @@
-import mongoose from "mongoose";
+import mongoose,{Schema} from "mongoose";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
-const userSchema = new mongoose.Schema({
+const userSchema = new Schema({
     username: 
     { 
         type: String,
         required: true,
-        unique: true
+        unique: true,
+        trim: true,
+        lowercase: true,
+        index:true
         
     },
     fullName: 
     { 
         type: String, 
-        required: true 
+        required: true ,
+        trim: true,
+        index:true
     },
-    avtar: 
+    watchHistory: [
+        {
+            type:Schema.Types.ObjectId,
+            ref:"Video"
+        }
+    ],
+    avatar: 
     { 
         type: String,
         required: true, 
-        default: "default_avatar.jpg" 
+        
     },
-    coverimage: 
+    coverImage: 
     { 
         type: String,
         required: false,
-        default: "default_cover.jpg" 
+       
     },
     email:
     {
         type: String,
         required: [true, "Email is required"],
-        unique: true            
+        unique: true ,
+        trim: true,
+        lowercase: true,
+        index:true           
 
     },
     password: 
     { 
         type: String, 
         required: true 
+    },
+    refreshToken:
+    {
+        type: String,
+        required: false
     },
     createdAt: 
     { 
@@ -169,11 +188,12 @@ Together they create a complete secure login system.
 
 
 
-userSchema.pre("save", async function () {
+userSchema.pre("save", async function (next) {
     if(!this.isModified("password")){
-        return 
+        return next();
     }
     this.password = await bcrypt.hash(this.password,10)
+    next();
     
 });
 userSchema.methods.isPasswordcorrect = async function (password) {
