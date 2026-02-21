@@ -1,0 +1,19 @@
+import mongoose,{Schema} from "mongoose";
+
+const tweetSchema = new mongoose.Schema(
+    {
+        content:{
+            type:String,
+            required:true,
+            trim:true,
+            maxlength:280
+        },
+        owener:{
+            type:mongoose.Schema.Types.ObjectId,
+            ref:"User",
+            required:true
+        },timestamps:true
+    }
+)
+const Tweet = mongoose.model("Tweet",tweetSchema);
+export default Tweet;
