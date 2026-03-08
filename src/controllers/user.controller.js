@@ -3,7 +3,8 @@ import {ApiError} from "../utils/ApiError.js";
 import ApiResponse from "../utils/ApiResponse.js";
 import User from "../models/user.models.js";
 import {cloudinaryupload}  from "../utils/cloudinary.js";
-import { decode } from "jsonwebtoken";
+// here the bug fixed by copilot and the bug is import { decode } from "jsonwebtoken" — wrong import, jwt never available. Explanation: This caused import error as decode is not exported from jsonwebtoken.
+import jwt from "jsonwebtoken";
 
 
 const registerUser = asyncHandler(async (req, res) => {
@@ -96,8 +97,9 @@ const genrateAccessAndRefreshToken = async (userId)=>
 {
     try{
       const user= await User.findById(userId);
-      const accessToken= user.genrateAccessToken();
-      const refreshToken= user.genrateRefreshToken();
+      // here the bug fixed by copilot and the bug is user.genrateAccessToken() / user.genrateRefreshToken() — wrong method names. Explanation: Methods were named generateAccessToken and generateRefreshToken in model, causing method not found errors.
+      const accessToken= user.generateAccessToken();
+      const refreshToken= user.generateRefreshToken();
       user.refreshToken= refreshToken;
       await user.save();
       return {accessToken, refreshToken};
@@ -142,7 +144,8 @@ const loginUser = asyncHandler(async (req, res) => {
     const loogedInUser = await User.findById(user._id).select("-password -refreshToken");
      
     const  options ={
-        httpsonly:true,
+        // here the bug fixed by copilot and the bug is httpsonly: true — should be httpOnly: true (cookies not protected!). Explanation: Incorrect property name meant cookies were not properly secured against client-side access.
+        httpOnly:true,
         secure:true
     }
 
@@ -184,7 +187,8 @@ const logoutUser = asyncHandler(async (req, res) => {
 
 
 const  options ={
-        httpsonly:true,
+        // here the bug fixed by copilot and the bug is httpsonly: true — should be httpOnly: true (cookies not protected!). Explanation: Incorrect property name meant cookies were not properly secured against client-side access.
+        httpOnly:true,
         secure:true
     }
 
@@ -204,13 +208,15 @@ return res
 
 const refreshAccessToken = asyncHandler(async (req, res) => {
     try {
-        const incomingRefreshToken = req.cookie.refreshToken || req.body.refreshToken
+        // here the bug fixed by copilot and the bug is req.cookie.refreshToken — should be req.cookies.refreshToken (plural). Explanation: Cookies are stored in req.cookies, not req.cookie, causing undefined token access.
+        const incomingRefreshToken = req.cookies.refreshToken || req.body.refreshToken
     
         if(!incomingRefreshToken){
             throw new ApiError(401,"Invalid request, refresh token is missing");
         }
     
-        jwt.verify(
+        // here the bug fixed by copilot and the bug is jwt.verify(...) return value never captured into decodedToken. Explanation: The decoded payload was not stored, causing decodedToken to be undefined in subsequent lines.
+        const decodedToken = jwt.verify(
             incomingRefreshToken,
             process.env.REFRESH_TOKEN_SECRET
         )
@@ -227,7 +233,8 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
         const {accessToken, refreshToken} = await genrateAccessAndRefreshToken(user._id);
     
         const  options ={
-            httpsonly:true,
+            // here the bug fixed by copilot and the bug is httpsonly: true — should be httpOnly: true (cookies not protected!). Explanation: Incorrect property name meant cookies were not properly secured against client-side access.
+            httpOnly:true,
             secure:true 
         }
     

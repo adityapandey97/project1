@@ -11,7 +11,8 @@ const playlistSchema = new mongoose.Schema({
         type:String,
         required:false,
     },
-    createdBy:{
+    // here the bug fixed by copilot and the bug is field name createdBy but controllers queried owner. Explanation: This caused queries to fail as the field name didn't match.
+    owner:{
         type:mongoose.Schema.Types.ObjectId,
         ref:"User",
     },

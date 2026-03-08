@@ -24,7 +24,8 @@
 */
 
 class ApiResponse {
-    constructor(statusCode, message="sucsses ", data) {
+    // here the bug fixed by copilot and the bug is constructor parameter order was (statusCode, message, data) but called as (statusCode, data, message), causing wrong assignment. Also typo sucsses -> success. Explanation: This caused data and message to be swapped in responses, leading to incorrect API response structure.
+    constructor(statusCode, data, message="success") {
         this.statusCode = statusCode;
         this.message = message;
         this.data = data;

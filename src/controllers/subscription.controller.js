@@ -82,7 +82,8 @@ const getUserChannelSubscribers = asyncHandler(async (req, res) => {
     return res
     .status(200)
     .json(
-        ApiResponse(200, subscribers, "Channel Subscribers fetched successfully")
+        // here the bug fixed by copilot and the bug is ApiResponse(...) missing new keyword. Explanation: Constructor must be called with new to create instance.
+        new ApiResponse(200, subscribers, "Channel Subscribers fetched successfully")
     )
 
 })

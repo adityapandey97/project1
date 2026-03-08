@@ -199,6 +199,8 @@ userSchema.pre("save", async function (next) {
 userSchema.methods.isPasswordcorrect = async function (password) {
     return await bcrypt.compare(password, this.password);
 }
+// here the bug fixed by copilot and the bug is controller called isPasswordMatched but model defined isPasswordcorrect. Explanation: This caused method not found errors when validating passwords.
+userSchema.methods.isPasswordMatched = userSchema.methods.isPasswordcorrect;
 userSchema.methods.generateAccessToken = function () {
     return jwt.sign(
         {

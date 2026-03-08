@@ -1,4 +1,5 @@
-import CookieParser from "cookie-parser";
+// here the bug fixed by copilot and the bug is import CookieParser — wrong casing (should be cookieParser). Explanation: Module names are case-sensitive.
+import cookieParser from "cookie-parser";
 
 import cors from "cors"
 
@@ -8,7 +9,8 @@ const app  = express();
 //USE TO HANDLE CROSS ORGIN ERROR IN THE BROWSER TO ALLOW THE FRONTEND TO READ THE BACKENG OR LISITEN ON SERVER
 app.use(cors({
     origin:process.env.CROSS_ORIGIN_URL,
-    Credentials:true
+    // here the bug fixed by copilot and the bug is Credentials: true — wrong key casing (should be credentials). Explanation: CORS options are case-sensitive.
+    credentials:true
 }))
 //USE TO TAKE JSON FILE DATA FROM SERVER
 app.use(express.json({
@@ -23,7 +25,7 @@ app.use(express.urlencoded({
 app.use(express.static('public'))
 //cookie-parser is an Express middleware that parses cookies from incoming HTTP requests and makes them available in req.cookies for easy access.
 //it reads cookies from the browser request and converts them into a JavaScript object.
-app.use(CookieParser())
+app.use(cookieParser())
 
 
 
@@ -50,5 +52,16 @@ app.use("/api/v1/playlist", playlistRouter)
 app.use("/api/v1/dashboard", dashboardRouter)
  
 // https:localhost:8000/api/v1/users/register
+
+// here the bug fixed by copilot and the bug is no global error handler. Explanation: Without a global error handler, unhandled errors would crash the server or return generic responses.
+app.use((err, req, res, next) => {
+    const statusCode = err.statusCode || 500;
+    const message = err.message || "Internal Server Error";
+    res.status(statusCode).json({
+        success: false,
+        message,
+        errors: err.errors || []
+    });
+});
 
 export { app };

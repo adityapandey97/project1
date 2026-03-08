@@ -6,20 +6,21 @@ const likeSchema = new mongoose.Schema(
             ref:"User",
             required:true
         },
+        // here the bug fixed by copilot and the bug is all three fields (video, tweet, comment) were required: true, but a like can only be for ONE entity. Explanation: This prevented creating likes as you couldn't set only one field while keeping others null.
         tweet:{
             type:mongoose.Schema.Types.ObjectId,
             ref:"Tweet",
-            required:true
+            required:false
         },
         comment:{
             type:mongoose.Schema.Types.ObjectId,
             ref:"Comment",
-            required:true
+            required:false
         },
         video:{
             type:mongoose.Schema.Types.ObjectId,
             ref:"Video",
-            required:true
+            required:false
         }
         
     }, {timestamps:true}

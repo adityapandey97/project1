@@ -83,9 +83,14 @@ const addVideoToPlaylist = asyncHandler(async (req, res) => {
     if(!isValidObjectId(playlistId) || !isValidObjectId(videoId)) {
         throw new ApiError(400, "Invalid playlist id or video id")
     }
-    const playlist = await Playlist.findByIdAndUpdate(playlistId)
+    // here the bug fixed by copilot and the bug is findByIdAndUpdate used instead of findById. Explanation: findByIdAndUpdate is for updating, but here we just need to find and then modify.
+    const playlist = await Playlist.findById(playlistId)
     if(!playlist) {
         throw new ApiError(404, "Playlist not found")
+    }
+    // here the bug fixed by copilot and the bug is no ownership checks. Explanation: Users could modify playlists they don't own.
+    if(playlist.owner.toString() !== req.user._id.toString()) {
+        throw new ApiError(403, "You are not authorized to modify this playlist")
     }
     const videoExists = playlist.videos.some(video => video.toString() === videoId)
     if(videoExists) {
@@ -113,6 +118,10 @@ const removeVideoFromPlaylist = asyncHandler(async (req, res) => {
     if(!playlist){
         throw new ApiError(404, "Playlist not found")
     }
+    // here the bug fixed by copilot and the bug is no ownership checks. Explanation: Users could modify playlists they don't own.
+    if(playlist.owner.toString() !== req.user._id.toString()) {
+        throw new ApiError(403, "You are not authorized to modify this playlist")
+    }
     const videoIndex = playlist.videos.findIndex(video => video.toString() === videoId)
     if(videoIndex === -1) {
         throw new ApiError(404, "Video not found in playlist")
@@ -136,10 +145,15 @@ const deletePlaylist = asyncHandler(async (req, res) => {
     if(!isValidObjectId(playlistId)) {
         throw new ApiError(400, "Invalid playlist id")
     }
-    const playlist = await Playlist.findByIdAndDelete(playlistId)
+    // here the bug fixed by copilot and the bug is no ownership checks. Explanation: Users could delete playlists they don't own.
+    const playlist = await Playlist.findById(playlistId)
     if(!playlist) {
         throw new ApiError(404, "Playlist not found")
     }
+    if(playlist.owner.toString() !== req.user._id.toString()) {
+        throw new ApiError(403, "You are not authorized to delete this playlist")
+    }
+    await Playlist.findByIdAndDelete(playlistId)
     return res
     .status(200)
     .json(
@@ -160,6 +174,10 @@ const updatePlaylist = asyncHandler(async (req, res) => {
     const playlist = await Playlist.findById(playlistId)
     if(!playlist) {
         throw new ApiError(404, "Playlist not found")
+    }
+    // here the bug fixed by copilot and the bug is no ownership checks. Explanation: Users could update playlists they don't own.
+    if(playlist.owner.toString() !== req.user._id.toString()) {
+        throw new ApiError(403, "You are not authorized to update this playlist")
     }
     if(!name && !description) {
         throw new ApiError(400, "Name and description are required")

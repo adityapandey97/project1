@@ -6,7 +6,8 @@ const subscriptionSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref:"User"
     },
-    channels:{
+    // here the bug fixed by copilot and the bug is field was channels but controllers used channel. Explanation: This caused field mismatch in database operations.
+    channel:{
         type:Schema.Types.ObjectId,
         ref:"User"
     }

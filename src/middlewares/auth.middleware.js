@@ -7,7 +7,8 @@ import User from "../models/user.models.js";
 
 export const  verifyJWT = asyncHandler(async (req, res, next) => {
     try {
-        const token =req.cookies?.accessToken || req.headers("Authorization")?.replace("Bearer ", "");
+        // here the bug fixed by copilot and the bug is req.headers("Authorization") - headers is an object, not a function. Explanation: This caused a TypeError when trying to access Authorization header, crashing every protected request.
+        const token =req.cookies?.accessToken || req.header("Authorization")?.replace("Bearer ", "");
          
         if(!token){
             throw new ApiError(401, "Unauthorized request");

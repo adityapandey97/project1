@@ -21,9 +21,10 @@
 */
 
 class ApiError extends Error {
+    // here the bug fixed by copilot and the bug is constructor parameter order was (message, statusCode) but called as (statusCode, message), causing wrong assignment. Also typo sucsses -> success. Explanation: This caused statusCode and message to be swapped, leading to incorrect HTTP responses and error messages.
     constructor(
+        statusCode,
         message="something went wrong",
-        statusCode=500,
         errors=[],
         stack=""
     ) {
@@ -32,7 +33,7 @@ class ApiError extends Error {
         this.message = message;
         this.data=null
         this.errors = errors;
-        this.sucsses = false;
+        this.success = false;
         if(stack){
             this.stack=stack;
         }else{

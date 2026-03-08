@@ -8,7 +8,8 @@ const tweetSchema = new mongoose.Schema(
             trim:true,
             maxlength:280
         },
-        owener:{
+        // here the bug fixed by copilot and the bug is typo owener -> owner. Explanation: This caused field name mismatch in queries and population.
+        owner:{
             type:mongoose.Schema.Types.ObjectId,
             ref:"User",
             required:true

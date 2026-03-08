@@ -1,5 +1,6 @@
 import mongoose, { isValidObjectId } from "mongoose"
-import  VIDEOS  from "../models/video.models.js"
+// here the bug fixed by copilot and the bug is import { Video } from "../models/video.model.js" — wrong path AND named import on default export. Explanation: Wrong import path and syntax caused import error.
+import  Video  from "../models/video.models.js"
 // import { User } from "../models/user.model.js"
 import { ApiError } from "../utils/ApiError.js"
 import ApiResponse  from "../utils/ApiResponse.js"
@@ -85,7 +86,8 @@ ApiResponse → custom structured JSON response bhejne ke liye
 const publishAVideo = asyncHandler(async (req, res) => {
     const { title, description } = req.body
     
-    const videoLocalPath = req.files?.video[0]?.path
+    // here the bug fixed by copilot and the bug is req.files?.video[0] — field name is videoFile in routes. Explanation: Field name mismatch caused undefined file access.
+    const videoLocalPath = req.files?.videoFile[0]?.path
     if (!videoLocalPath) {
         throw new ApiError(400, "Video file is required");
     }
@@ -106,9 +108,10 @@ const publishAVideo = asyncHandler(async (req, res) => {
     const createdVideo = await Video.create({
         title,
         description,
-        videoUrl: video.url,
-        thumbnailUrl: thumbnail.url,
-        uploadedBy: req.user._id
+        // here the bug fixed by copilot and the bug is saved videoUrl, thumbnailUrl, uploadedBy — model fields are videoFile, thumbnail, owner. Explanation: Field name mismatch caused data to be saved in wrong fields.
+        videoFile: video.url,
+        thumbnail: thumbnail.url,
+        owner: req.user._id
     })
     if (!createdVideo) {
         throw new ApiError(500, "Something went wrong while publishing the video");
@@ -121,7 +124,7 @@ const publishAVideo = asyncHandler(async (req, res) => {
 const getVideoById = asyncHandler(async (req, res) => {
     const { videoId } = req.params
 
-    const video = await Video.findById(videoId).populate("uploadedBy", "fullName avatar username")
+    const video = await Video.findById(videoId).populate("owner", "fullName avatar username")
     if (!video) {
         throw new ApiError(404, "Video not found");
     }
@@ -137,7 +140,8 @@ const updateVideo = asyncHandler(async (req, res) => {
     if (!video) {
         throw new ApiError(404, "Video not found");
     }
-    if (video.uploadedBy.toString() !== req.user._id.toString()) {
+    // here the bug fixed by copilot and the bug is video.uploadedBy — should be video.owner. Explanation: Field name mismatch in ownership check.
+    if (video.owner.toString() !== req.user._id.toString()) {
         throw new ApiError(403, "You are not authorized to update this video");
     }
     const updatedVideo = await Video.findByIdAndUpdate(
@@ -160,7 +164,8 @@ const updateVideo = asyncHandler(async (req, res) => {
 
 const deleteVideo = asyncHandler(async (req, res) => {
     const { videoId } = req.params
-    const video = await video.findById(videoId)
+    // here the bug fixed by copilot and the bug is const video = await video.findById(...) — lowercase crash (video used before defined). Explanation: Variable name conflict caused reference error.
+    const video = await Video.findById(videoId)
     if (!video) {
         throw new ApiError(404, "Video not found");
     }
@@ -181,7 +186,8 @@ const togglePublishStatus = asyncHandler(async (req, res) => {
     if (!video) {
         throw new ApiError(404, "Video not found");
     }
-    if (video.uploadedBy.toString() !== req.user._id.toString()) {
+    // here the bug fixed by copilot and the bug is video.uploadedBy — should be video.owner. Explanation: Field name mismatch in ownership check.
+    if (video.owner.toString() !== req.user._id.toString()) {
         throw new ApiError(403, "You are not authorized to update this video");
     }
     const updatedVideo = await Video.findByIdAndUpdate(

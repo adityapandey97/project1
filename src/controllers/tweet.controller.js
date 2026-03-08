@@ -13,6 +13,8 @@ const createTweet = asyncHandler(async (req, res) => {
     }
     const tweet = await Tweet.create({
         content,
+        // here the bug fixed by copilot and the bug is tweet created without owner field. Explanation: Tweets need to be associated with the user who created them.
+        owner: req.user._id
     })
     if(!tweet) {
         throw new ApiError(500, "Failed to create tweet")
@@ -57,6 +59,11 @@ const updateTweet = asyncHandler(async (req, res) => {
     if(!content) {
         throw new ApiError(400, "Content is required")
     }
+    // here the bug fixed by copilot and the bug is no authorization check on update/delete. Explanation: Users could update/delete tweets they don't own.
+    const tweet = await Tweet.findById(tweetId)
+    if(tweet.owner.toString() !== req.user._id.toString()) {
+        throw new ApiError(403, "You are not authorized to update this tweet")
+    }
     const updatedTweet = await Tweet.findByIdAndUpdate(
         tweetId,
         {
@@ -85,10 +92,15 @@ const deleteTweet = asyncHandler(async (req, res) => {
     if(!isValidObjectId(tweetId)) {
         throw new ApiError(400, "Invalid tweet id")
     }
-    const deletedTweet = await Tweet.findByIdAndDelete(tweetId)
-    if(!deletedTweet) {
+    // here the bug fixed by copilot and the bug is no authorization check on update/delete. Explanation: Users could update/delete tweets they don't own.
+    const tweet = await Tweet.findById(tweetId)
+    if(!tweet) {
         throw new ApiError(404, "Tweet not found")
     }
+    if(tweet.owner.toString() !== req.user._id.toString()) {
+        throw new ApiError(403, "You are not authorized to delete this tweet")
+    }
+    const deletedTweet = await Tweet.findByIdAndDelete(tweetId)
     return res
         .status(200)
         .json(

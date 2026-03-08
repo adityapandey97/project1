@@ -1,11 +1,7 @@
 import mongoose,{ Schema } from "mongoose";
 import mongoosePaginate from "mongoose-paginate-v2";
 const videoSchema = new Schema({
-    id:{
-        type:String,
-        required:true,
-        unique:true
-    },
+    // here the bug fixed by copilot and the bug is unnecessary id field with unique constraint conflicted with MongoDB's auto _id. Explanation: This could cause duplicate key errors and was redundant since MongoDB provides _id automatically.
     videoFile:{
         type:String,
         required:true,
@@ -26,11 +22,13 @@ const videoSchema = new Schema({
         type:Number,
         default:0
     },
-    duretion:{
+    // here the bug fixed by copilot and the bug is typo duretion -> duration. Explanation: This caused field name mismatch, potentially leading to undefined values.
+    duration:{
         type:Number,
         required:true,
     },
-    isPublised:{
+    // here the bug fixed by copilot and the bug is typo isPublised -> isPublished. Explanation: This caused field name mismatch in queries and updates.
+    isPublished:{
         type:Boolean,
         default:false
     },
@@ -143,5 +141,6 @@ const videoSchema = new Schema({
   ================================================================================
 */
 videoSchema.plugin(mongoosePaginate);
-const VIDEOS = mongoose.model("VIDEOS", videoSchema);
-export default  VIDEOS ;
+// here the bug fixed by copilot and the bug is model name "VIDEOS" -> "Video". Explanation: Inconsistent naming convention, should be singular "Video" to match other models.
+const Video = mongoose.model("Video", videoSchema);
+export default  Video ;
