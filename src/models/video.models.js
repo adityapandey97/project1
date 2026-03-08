@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose,{ Schema } from "mongoose";
 import mongoosePaginate from "mongoose-paginate-v2";
 const videoSchema = new Schema({
     id:{
@@ -142,6 +142,6 @@ const videoSchema = new Schema({
 
   ================================================================================
 */
-plugin(videoSchema, mongoosePaginate);
-const VIDEOS=mongoose.model("VIDEOS", videoSchema);
-export default VIDEOS;
+videoSchema.plugin(mongoosePaginate);
+const VIDEOS = mongoose.model("VIDEOS", videoSchema);
+export default  VIDEOS ;

@@ -20,9 +20,9 @@ const likeSchema = new mongoose.Schema(
             type:mongoose.Schema.Types.ObjectId,
             ref:"Video",
             required:true
-        },timestamps:true
+        }
         
-    }
+    }, {timestamps:true}
 )
 const Like = mongoose.model("Like",likeSchema);
 export default Like;

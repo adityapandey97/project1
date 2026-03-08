@@ -25,7 +25,7 @@ const playlistSchema = new mongoose.Schema({
     videoscount:{
         type:Number,
         default:0
-    },timestamps:true
-})
+    }
+}, {timestamps:true})
 const Playlist = mongoose.model("Playlist",playlistSchema);
 export default Playlist;

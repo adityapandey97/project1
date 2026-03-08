@@ -20,4 +20,4 @@ const cloudinaryupload=async(localfilepath)=>{
         return null;
     }
 }
-export default cloudinaryupload;
+export {cloudinaryupload};
