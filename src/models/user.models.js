@@ -188,12 +188,12 @@ Together they create a complete secure login system.
 
 
 
-userSchema.pre("save", async function (next) {
+userSchema.pre("save", async function () {
+    // error resolved by copilot: In Mongoose v6+, async pre-save hooks don't require next parameter or next() calls. Removed them to prevent "next is not a function" error.
     if(!this.isModified("password")){
-        return next();
+        return;
     }
     this.password = await bcrypt.hash(this.password,10)
-    next();
     
 });
 userSchema.methods.isPasswordcorrect = async function (password) {

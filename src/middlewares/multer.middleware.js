@@ -96,8 +96,10 @@ const storage = multer.diskStorage({
     },
     filename: function (req, file, cb) {
       
-      cb(null, file.originalname)
+      cb(null, Date.now() + "-" + file.originalname)
     }
+
+    // error resolved by copilot: added timestamp prefix to filenames to prevent file overwrites when multiple users upload files with the same name
   })
   
 export const upload = multer({ 

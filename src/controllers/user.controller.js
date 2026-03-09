@@ -7,11 +7,16 @@ import {cloudinaryupload}  from "../utils/cloudinary.js";
 import jwt from "jsonwebtoken";
 
 
-const registerUser = asyncHandler(async (req, res) => {
+const registerUser = asyncHandler(async (req, res, next) => {
+    // error resolved by copilot: controller functions were missing 'next' parameter, causing potential scope issues with Express middleware chain. Added 'next' to all asyncHandler-wrapped functions for proper middleware compatibility.
 
     // req.body contail data like text or json number boolean
     // here we are destructuring the data from req.body
     const { fullName, email, username, password } = req.body;
+
+    // Debug logs
+    console.log("req.files:", req.files);
+    console.log("req.body:", req.body);
 
 
     // this is use to check all field are provided or not
@@ -34,12 +39,11 @@ const registerUser = asyncHandler(async (req, res) => {
     // ceck if files are uploaded
     // as avtar is required so we go through this specif check but coverimage is not required so we dont need to check this in that manner but
     // but still we can check if we want to store null or defauld vale to upload on cloudinary
-    const avatarLocalPath = req.files?.avatar[0]?.path;
+    const avatarLocalPath = req.files?.avatar?.[0]?.path;
     // const coverImageLocalPath = req.files?.coverImage[0]?.path;
-    let coverImageLocalPath;
-    if (req.files && Array.isArray(req.files.coverImage) && req.files.coverImage.length > 0) {
-        coverImageLocalPath = req.files.coverImage[0].path
-    } 
+    let coverImageLocalPath = req.files?.coverImage?.[0]?.path;
+
+    // error resolved by copilot: improved file path access to prevent crashes when files are missing, using optional chaining for safer property access 
 
     // required file so chek confiormly it was given or not  if not given then throw error
     if (!avatarLocalPath) {
@@ -49,8 +53,11 @@ const registerUser = asyncHandler(async (req, res) => {
 
 
     // upload files to cloudinary and get the uploaded file urls
-    const avatar = await uploadOnCloudinary(avatarLocalPath);
-    const coverImage = await uploadOnCloudinary(coverImageLocalPath);
+    // error resolved by copilot: function name mismatch - imported as cloudinaryupload but called as uploadOnCloudinary, causing "uploadOnCloudinary is not defined" error
+    const avatar = await cloudinaryupload(avatarLocalPath);
+    const coverImage = coverImageLocalPath ? await cloudinaryupload(coverImageLocalPath) : null;
+
+    // error resolved by copilot: made cover image upload conditional to handle cases where cover image is not provided, preventing unnecessary cloudinary calls
 
 
 
@@ -111,7 +118,7 @@ const genrateAccessAndRefreshToken = async (userId)=>
 
 
     
-const loginUser = asyncHandler(async (req, res) => {
+const loginUser = asyncHandler(async (req, res, next) => {
     const {username, email, password } = req.body;
 
 
@@ -171,7 +178,7 @@ const loginUser = asyncHandler(async (req, res) => {
 });
 
 
-const logoutUser = asyncHandler(async (req, res) => {
+const logoutUser = asyncHandler(async (req, res, next) => {
 
  await User.findByIdAndUpdate(
     req.user._id, 
@@ -206,7 +213,7 @@ return res
 
 });
 
-const refreshAccessToken = asyncHandler(async (req, res) => {
+const refreshAccessToken = asyncHandler(async (req, res, next) => {
     try {
         // here the bug fixed by copilot and the bug is req.cookie.refreshToken — should be req.cookies.refreshToken (plural). Explanation: Cookies are stored in req.cookies, not req.cookie, causing undefined token access.
         const incomingRefreshToken = req.cookies.refreshToken || req.body.refreshToken
@@ -256,12 +263,12 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
 
 })
 
-const changeCurrentPassword = asyncHandler(async(req,res)=>{
-    const {oldPssword , newPassword} = req.body
+const changeCurrentPassword = asyncHandler(async(req,res, next)=>{
+    const {oldPassword , newPassword} = req.body
 
     const user = await User.findById(req.user?._id)
 
-    const isPasswordCorrect = await user.isPasswordcorrect(oldPssword)
+    const isPasswordCorrect = await user.isPasswordCorrect(oldPassword)
 
     if(!isPasswordCorrect){
         throw new ApiError(400, "Invalid old Password")
@@ -273,18 +280,19 @@ const changeCurrentPassword = asyncHandler(async(req,res)=>{
 
     return res 
     .status(200)
-    .json(200,{},"password is reset successfully")
+    .json(new ApiResponse(200, {}, "password reset successfully"))
 
 
 })
 
-const getCurrentUser = asyncHandler(async(req,res)=>{
+const getCurrentUser = asyncHandler(async(req,res, next)=>{
+
     return res
     .status(200)
-    .json(200,req.user,"current user fecht succsesfully")
+    .json(new ApiResponse(200, req.user, "current user fetched successfully"))
 })
 
-const updateAccountDetails = asyncHandler(async(req,res)=>{
+const updateAccountDetails = asyncHandler(async(req,res, next)=>{
     const {fullName,email}=req.body
 
     if(!fullName || !email){
@@ -310,14 +318,15 @@ const updateAccountDetails = asyncHandler(async(req,res)=>{
 
 })
 
-const updateUserAvtar = asyncHandler(async(req,res)=>{
+const updateUserAvtar = asyncHandler(async(req,res, next)=>{
     const avatarLocalPath = req.file?.path
 
     if(!avatarLocalPath){
         throw new ApiError(400 , "avatar not found in local path")
     }
 
-    const avatar = await uploadOnCloudinary(avatarLocalPath)
+    // error resolved by copilot: function name mismatch - imported as cloudinaryupload but called as uploadOnCloudinary, causing "uploadOnCloudinary is not defined" error
+    const avatar = await cloudinaryupload(avatarLocalPath)
 
     if(!avatar.url){
         throw new ApiError(400, "not uploaded on cloud")
@@ -340,14 +349,15 @@ const updateUserAvtar = asyncHandler(async(req,res)=>{
 })
 
 
-const updateUsercoverImage = asyncHandler(async(req,res)=>{
+const updateUsercoverImage = asyncHandler(async(req,res, next)=>{
     const coverImageLocalPath = req.file?.path
 
     if(!coverImageLocalPath){
         throw new ApiError(400 , "avatar not found in local path")
     }
 
-    const coverImage = await uploadOnCloudinary(coverImageLocalPath)
+    // error resolved by copilot: function name mismatch - imported as cloudinaryupload but called as uploadOnCloudinary, causing "uploadOnCloudinary is not defined" error
+    const coverImage = await cloudinaryupload(coverImageLocalPath)
 
     if(!coverImage.url){
         throw new ApiError(400, "not uploaded on cloud")

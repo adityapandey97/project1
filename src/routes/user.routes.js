@@ -14,9 +14,11 @@ router.route("/register").post(
             maxCount: 1 
         },
         { 
-            name: "coverimage", 
+            name: "coverImage", 
             maxCount: 1 
         }
+
+    // error resolved by copilot: corrected field name from "coverimage" to "coverImage" to match controller expectations and prevent undefined file access
     ]),
     registerUser
 );
